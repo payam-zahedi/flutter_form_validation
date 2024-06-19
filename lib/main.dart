@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_validation/src/models/role.dart';
+import 'package:flutter_validation/src/validation.dart';
+import 'package:flutter_validation/src/validator.dart';
 
 void main() {
   runApp(const MainApp());
@@ -13,23 +15,22 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
       home: Scaffold(
         body: Center(
-          child: SizedBox(width: 200, child: FormWidget()),
+          child: SizedBox(width: 200, child: FormPage()),
         ),
       ),
     );
   }
 }
 
-class FormWidget extends StatefulWidget {
-  const FormWidget({super.key});
+class FormPage extends StatefulWidget {
+  const FormPage({super.key});
 
   @override
-  State<FormWidget> createState() => _FormWidgetState();
+  State<FormPage> createState() => _FormPageState();
 }
 
-class _FormWidgetState extends State<FormWidget> {
+class _FormPageState extends State<FormPage> {
   final formKey = GlobalKey<FormState>();
-  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
   @override
   Widget build(BuildContext context) {
@@ -40,20 +41,31 @@ class _FormWidgetState extends State<FormWidget> {
         children: <Widget>[
           TextFormField(
             decoration: const InputDecoration(labelText: 'email'),
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: (value) {
-              if (value?.isEmpty == true) {
-                return 'Email is required';
-              }
-              if (!emailRegex.hasMatch(value!)) {
-                return 'Please enter a valid email';
-              }
-              return null;
-            },
+            validator: Validator.apply(
+              context,
+              const [
+                RequiredValidation(),
+                EmailValidation(),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'password'),
+            validator: Validator.apply(
+              context,
+              const [
+                RequiredValidation(),
+                PasswordValidation(
+                  minLength: 8,
+                  number: true,
+                  upperCase: false,
+                  specialChar: true,
+                ),
+              ],
+            ),
+          ),
           DropdownButtonFormField<Role>(
-            decoration: const InputDecoration(labelText: 'role'),
+            decoration: const InputDecoration(labelText: 'Role'),
             items: const [
               DropdownMenuItem(
                 value: Role.admin,
@@ -70,16 +82,13 @@ class _FormWidgetState extends State<FormWidget> {
             ],
             onChanged: (value) => print(value),
             autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: (value) {
-              if (value == null) {
-                return 'Role is required';
-              }
-
-              if (value == Role.member) {
-                return 'Required Admin or Editor';
-              }
-              return null;
-            },
+            validator: Validator.apply(
+              context,
+              const [
+                RequiredValidation(),
+                RoleValidation(),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           Align(
