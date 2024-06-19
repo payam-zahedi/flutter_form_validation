@@ -1,23 +1,18 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_validation/src/validation.dart';
 
+/// a uttility class for applying multiple validations to a form field.
 class Validator {
-  Validator._();
+  Validator._(); // private constructor to prevent instantiation
 
-  static FormFieldValidator<T> validate<T>(
-    BuildContext context,
-    Validation<T> validation,
-  ) {
-    return (value) => validation.validate(context, value as T);
-  }
-
-  static FormFieldValidator<T> combine<T>(
+  /// Applies a list of [validations] to a form field value.
+  static FormFieldValidator<T> apply<T>(
     BuildContext context,
     List<Validation<T>> validations,
   ) {
-    return (value) {
+    return (T? value) {
       for (final validation in validations) {
-        final error = validation.validate(context, value as T);
+        final error = validation.validate(context, value);
         if (error != null) return error;
       }
       return null;

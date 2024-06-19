@@ -1,1 +1,5 @@
-enum Role { admin, editor, member }
+enum Role {
+  admin,
+  editor,
+  member,
+}
